@@ -14,7 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import sqlite.ExcelDataPo
+import dataSource.ExcelDataPo
 
 @OptIn(ExperimentalFoundationApi::class)
 @Preview
@@ -24,16 +24,14 @@ fun searchResult(searchResult: SnapshotStateList<ExcelDataPo>, searchText: Mutab
     val state = rememberLazyListState()
 
     Box(
-        modifier = Modifier.fillMaxSize()
-            .background(color = Color.White)
+        modifier = Modifier.fillMaxWidth().fillMaxHeight().padding(top = 5.dp)
     ) {
 
         LazyColumn(
             Modifier
                 .fillMaxSize()
-                .padding(5.dp)
-                .border(border = BorderStroke(1.dp, Color.Black))
-                .background(Color.White).padding(end = 12.dp), state
+                .border(border = BorderStroke(1.dp, Color(0xFFF0F0F0)))
+                .background(Color.White), state
         ) {
             items(searchResult) { result ->
                 run {
@@ -56,7 +54,7 @@ fun showResult(result: ExcelDataPo) {
         result.rowIndex?.let { it ->
             Text(
                 text = "所在行" + it.toString(),
-                Modifier.padding(start = 3.dp, bottom = 3.dp).width(80.dp)
+                Modifier.padding(start = 5.dp, top = 5.dp).width(80.dp)
                     .border(BorderStroke(1.dp, Color.Black)),
                 maxLines = 1,
                 textAlign = TextAlign.Center
@@ -65,7 +63,7 @@ fun showResult(result: ExcelDataPo) {
         result.columnIndex?.let { it ->
             Text(
                 text = "所在列" + it.toString(),
-                Modifier.padding(start = 3.dp, bottom = 3.dp).width(80.dp)
+                Modifier.padding(start = 5.dp, top = 5.dp).width(80.dp)
                     .border(BorderStroke(1.dp, Color.Black)),
                 maxLines = 1,
                 textAlign = TextAlign.Center
@@ -74,7 +72,7 @@ fun showResult(result: ExcelDataPo) {
         result.data?.let { it ->
             Text(
                 text = it,
-                Modifier.padding(start = 3.dp, bottom = 3.dp).width(300.dp)
+                Modifier.padding(start = 5.dp, top = 5.dp, end = 5.dp).fillMaxWidth()
                     .border(BorderStroke(1.dp, Color.Black)),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,

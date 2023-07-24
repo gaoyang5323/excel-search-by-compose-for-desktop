@@ -1,10 +1,8 @@
 import androidx.compose.desktop.ui.tooling.preview.Preview
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -13,12 +11,17 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import sqlite.ExcelDataPo
-import sqlite.SqliteUtil
+import dataSource.ExcelDataPo
+import dataSource.MemoryUtil
+import dataSource.SqliteUtil
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -27,98 +30,166 @@ fun searchBar(searchText: MutableState<String>, searchResult: SnapshotStateList<
     var text by remember { searchText }
     var showPlaceHolder by remember { mutableStateOf(true) }
     var showAlert by remember { mutableStateOf(false) }
-    var inputEnable by remember { mutableStateOf(true) }
+    val inputEnable by remember { mutableStateOf(true) }
+    //1 sql查询  2内存查询
+    var searchSourceType by remember { mutableStateOf(1) }
+
+    //fuxuankuang
+    var checkedState1 by remember { mutableStateOf(true) }
+    var checkedState2 by remember { mutableStateOf(false) }
 
 
-    Row() {
-        BasicTextField(
-            value = text,
-            onValueChange = {
-                text = it
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .height(40.dp)
+            .padding(end = 5.dp, top = 5.dp)
+    ) {
+        //搜索栏
+        Column(Modifier.fillMaxWidth().weight(2.5f)) {
+            BasicTextField(
+                value = text,
+                onValueChange = {
+                    text = it
+                    if (text.isNotBlank() && text.length > 40) {
+                        text = text.substring(0, 40)
+                    }
 
-                //最大字符串数量
-                if (text.isNotBlank() && text.length > 20) {
-                    text = text.substring(0, 20)
-                }
-
-                showPlaceHolder = text.isEmpty()
-            },
-            decorationBox = { innerTextField ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Search,
-                        contentDescription = "搜索",
-                    )
-                    Box(
-                        modifier = Modifier
-                            .padding(horizontal = 10.dp)
-                            .weight(1f),
-                        contentAlignment = Alignment.CenterStart
+                    showPlaceHolder = text.isEmpty()
+                },
+                decorationBox = { innerTextField ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        if (showPlaceHolder) {
-                            Text(
-                                text = "输入点东西看看吧~",
-                                color = Color(0x7F000000),
-                                modifier = Modifier.clickable { showPlaceHolder = false }
-                            )
-                        }
-                        innerTextField()
-                    }
-                    if (text.isNotBlank()) {
-                        IconButton(
-                            onClick = {
-                                text = ""
-                                showPlaceHolder = true
 
-                                //释放搜索框
-                                //inputEnable = true
-                            },
-                            modifier = Modifier.size(16.dp)
+                        //文件名筛选
+                        Column(
+                            Modifier
+                                .fillMaxHeight()
+                                .width(150.dp)
+                                .border(1.dp, Color(0x7F000000), shape = RoundedCornerShape(4.dp)),
+                            verticalArrangement = Arrangement.Center
                         ) {
-                            Icon(imageVector = Icons.Filled.Close, contentDescription = "清除")
+                            Text(text = "请点击右侧上传文件", textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+                        }
+                        Icon(
+                            imageVector = Icons.Filled.Search,
+                            contentDescription = "搜索图标",
+                            modifier = Modifier.padding(3.dp)
+                        )
+
+                        //搜索框
+                        Box(
+                            modifier = Modifier
+                                .padding(horizontal = 10.dp)
+                                .weight(1f),
+                            contentAlignment = Alignment.CenterStart
+                        ) {
+                            if (showPlaceHolder) {
+                                Text(
+                                    text = "请输入搜索内容~",
+                                    color = Color(0x7F000000),
+                                    modifier = Modifier.clickable { showPlaceHolder = false }
+                                )
+                            }
+                            innerTextField()
+                        }
+
+                        //清除
+                        if (text.isNotBlank()) {
+                            IconButton(
+                                onClick = {
+                                    text = ""
+                                    showPlaceHolder = true
+
+                                    //释放搜索框
+                                    //inputEnable = true
+                                },
+                                modifier = Modifier.size(16.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.Close,
+                                    contentDescription = "清除"
+                                )
+                            }
                         }
                     }
-                }
-            },
-            modifier = Modifier
-                .padding(start = 5.dp)
-                .background(Color.White, CircleShape)
-                .height(40.dp)
-                .weight(2f)
-                .fillMaxWidth()
-                .border(border = BorderStroke(1.dp, Color.Black)),
-            enabled = inputEnable,
-            singleLine = true
-        )
+                },
+                modifier = Modifier
+                    .padding(start = 5.dp)
+                    .background(Color.White, CircleShape)
+                    .fillMaxHeight()
+                    .border(border = BorderStroke(1.dp, Color(0x7F000000)), shape = RoundedCornerShape(4.dp)),
+                enabled = inputEnable,
+                singleLine = true
+            )
+        }
 
-        Button(
-            onClick = {
-                //弹窗
-                if (text.isBlank()) {
-                    showAlert = true
-                    return@Button
-                }
-                //进行搜索
-                searchResult.clear()
-                val dataList = SqliteUtil().selectByData(searchText.value)
-                searchResult.addAll(dataList)
-                //锁定搜索框
-                //inputEnable = false
-            },
-            Modifier
-                .weight(1f)
-                .height(40.dp).padding(end = 5.dp)
-                .background(Color.White)
-                .padding(start = 5.dp)
-                .wrapContentWidth(Alignment.End)
-                .fillMaxWidth(),
-            enabled = true,
-            content = {
-                Text("查询")
-            })
+        //按钮栏
+        Row(Modifier.fillMaxWidth().weight(1f).height(40.dp)) {
+            //搜索按钮
+            Box(
+                modifier = Modifier
+                    .weight(2f)
+                    .padding(end = 3.dp)
+                    .fillMaxHeight()
+                    .padding(start = 10.dp)
+                    .wrapContentWidth(Alignment.End)
+                    .border(
+                        border = BorderStroke(1.dp, Color(0x7F000000)),
+                        shape = RoundedCornerShape(4.dp)
+                    )
+                    .clip(RoundedCornerShape(4.dp))
+                    .fillMaxWidth()
+                    .background(Color.Magenta)
+                    .clickable {
+                        //弹窗
+                        if (text.isBlank()) {
+                            showAlert = true
+                            return@clickable
+                        }
+                        //进行搜索
+                        when (searchSourceType) {
+                            1 -> {
+                                searchResult.clear()
+                                val dataList = SqliteUtil().selectByData(searchText.value)
+                                searchResult.addAll(dataList)
+                            }
+                            2 -> {
+                                searchResult.clear()
+                                val dataList = MemoryUtil().selectByData(searchText.value)
+                                searchResult.addAll(dataList)
+                            }
+                            else -> {
+                                TODO()
+                            }
+                        }
+                        //锁定搜索框
+                        //inputEnable = false
+                    },
+                contentAlignment = Center
+            ) {
+                Text(
+                    text = "搜索",
+                    textAlign = TextAlign.Center,
+                    color = Color.White
+                )
+            }
+
+
+            //导入按钮
+            Image(
+                painter = painterResource("上传.png"),
+                contentDescription = "My Image",
+                modifier = Modifier.fillMaxHeight()
+                    .width(30.dp)
+                    .background(Color(176, 196, 222))
+                    .border(border = BorderStroke(1.dp, Color(0x7F000000)), shape = RoundedCornerShape(4.dp))
+                    .clickable {
+                        showAlert = true
+                    }
+            )
+        }
     }
 
     if (showAlert) {

@@ -13,7 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
-import sqlite.ExcelDataPo
+import dataSource.ExcelDataPo
 
 @Composable
 @Preview
@@ -22,7 +22,12 @@ fun App() {
     val searchText = remember { mutableStateOf("") }
     val searchResult = remember { mutableStateListOf<ExcelDataPo>() }
 
-    Column(Modifier.background(Color.White).fillMaxWidth().fillMaxHeight()) {
+    Column(
+        Modifier
+            .background(Color(0xfff7f7f7))
+            .fillMaxWidth()
+            .fillMaxHeight()
+    ) {
 
         //搜索框
         searchBar(searchText, searchResult)

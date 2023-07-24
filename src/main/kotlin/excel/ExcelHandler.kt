@@ -4,20 +4,25 @@ import com.alibaba.excel.EasyExcel
 import com.alibaba.excel.context.AnalysisContext
 import com.alibaba.excel.metadata.data.ReadCellData
 import com.alibaba.excel.read.listener.ReadListener
-import sqlite.ExcelDataPo
-import sqlite.SqliteUtil
+import dataSource.ExcelDataPo
+import dataSource.MemoryUtil
+import dataSource.SqliteUtil
 import java.io.File
 
 class ExcelHandler : ReadListener<HashMap<Any, Any>> {
 
     //表格索引
     var sheetIndex = 1
-    var rowIndex = 1;
+    var rowIndex = 1
+
+    //1 sql写入  2内存写入
+    var insertType = 1
 
     lateinit var fileName: String
 
 
-    fun readExcel(filePath: String) {
+    fun readExcel(filePath: String, insertType: Int) {
+        this.insertType = insertType
         fileName = filePath
         val file = File(filePath)
         if (!file.isFile) {
@@ -42,7 +47,8 @@ class ExcelHandler : ReadListener<HashMap<Any, Any>> {
             po.columnIndex = it.columnIndex
             po.data = it.stringValue
             po.fileName = fileName
-            SqliteUtil().insert(po)
+
+            insertByType(po)
         })
     }
 
@@ -63,7 +69,9 @@ class ExcelHandler : ReadListener<HashMap<Any, Any>> {
                 po.data = it.toString()
             }
             po.fileName = fileName
-            SqliteUtil().insert(po)
+
+
+            insertByType(po)
         }
         rowIndex++;
     }
@@ -72,8 +80,22 @@ class ExcelHandler : ReadListener<HashMap<Any, Any>> {
         sheetIndex++
         rowIndex = 1
     }
+
+    private fun insertByType(po: ExcelDataPo) {
+        when (insertType) {
+            1 -> {
+                SqliteUtil().insert(po)
+            }
+            2 -> {
+                MemoryUtil().insert(po)
+            }
+            else -> {
+                TODO()
+            }
+        }
+    }
 }
 
 fun main() {
-    ExcelHandler().readExcel("C:\\Users\\78517\\Desktop\\典籍里的中国(统计).xlsx")
+    ExcelHandler().readExcel("C:\\Users\\78517\\Desktop\\典籍里的中国(统计).xlsx", 2)
 }
