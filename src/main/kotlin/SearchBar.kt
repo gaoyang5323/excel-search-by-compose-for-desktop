@@ -30,9 +30,12 @@ fun searchBar(searchText: MutableState<String>, searchResult: SnapshotStateList<
     var text by remember { searchText }
     var showPlaceHolder by remember { mutableStateOf(true) }
     var showAlert by remember { mutableStateOf(false) }
-    val inputEnable by remember { mutableStateOf(true) }
+    //输入框开关
+    var inputEnable by remember { mutableStateOf(false) }
     //1 sql查询  2内存查询
     var searchSourceType by remember { mutableStateOf(1) }
+    //搜索框颜色
+    var searchButtonColor by remember { mutableStateOf(Color.Gray) }
 
     //fuxuankuang
     var checkedState1 by remember { mutableStateOf(true) }
@@ -70,7 +73,10 @@ fun searchBar(searchText: MutableState<String>, searchResult: SnapshotStateList<
                                 .border(1.dp, Color(0x7F000000), shape = RoundedCornerShape(4.dp)),
                             verticalArrangement = Arrangement.Center
                         ) {
-                            Text(text = "请点击右侧上传文件", textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+                            Text(
+                                text = "请点击右侧上传文件", textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth()
+                            )
                         }
                         Icon(
                             imageVector = Icons.Filled.Search,
@@ -89,7 +95,9 @@ fun searchBar(searchText: MutableState<String>, searchResult: SnapshotStateList<
                                 Text(
                                     text = "请输入搜索内容~",
                                     color = Color(0x7F000000),
-                                    modifier = Modifier.clickable { showPlaceHolder = false }
+                                    modifier = Modifier.clickable {
+                                        //showPlaceHolder = false
+                                    }
                                 )
                             }
                             innerTextField()
@@ -141,9 +149,14 @@ fun searchBar(searchText: MutableState<String>, searchResult: SnapshotStateList<
                     )
                     .clip(RoundedCornerShape(4.dp))
                     .fillMaxWidth()
-                    .background(Color.Magenta)
+                    .background(searchButtonColor)
                     .clickable {
-                        //弹窗
+                        //判断输入框是否开启
+                        if (!inputEnable) {
+                            return@clickable
+                        }
+
+                        //没有搜索内容的弹窗
                         if (text.isBlank()) {
                             showAlert = true
                             return@clickable
@@ -176,7 +189,6 @@ fun searchBar(searchText: MutableState<String>, searchResult: SnapshotStateList<
                 )
             }
 
-
             //导入按钮
             Image(
                 painter = painterResource("上传.png"),
@@ -186,7 +198,9 @@ fun searchBar(searchText: MutableState<String>, searchResult: SnapshotStateList<
                     .background(Color(176, 196, 222))
                     .border(border = BorderStroke(1.dp, Color(0x7F000000)), shape = RoundedCornerShape(4.dp))
                     .clickable {
-                        showAlert = true
+
+                        inputEnable = true
+                        searchButtonColor = Color.Magenta
                     }
             )
         }
