@@ -52,26 +52,27 @@ class ExcelHandler : ReadListener<HashMap<Any, Any>> {
         })
     }
 
-    override fun invoke(data: HashMap<Any, Any>?, context: AnalysisContext?) {
+    override fun invoke(data: HashMap<Any, Any>, context: AnalysisContext?) {
         if (data == null) {
             return
         }
 
         data.entries.forEach {
-            it.key
-            val po = ExcelDataPo()
-            po.sheet = sheetIndex
-            po.rowIndex = rowIndex
-            it.key.let {
-                po.columnIndex = it.toString().toInt()
-            }
-            it.value.let {
-                po.data = it.toString()
-            }
-            po.fileName = fileName
+            try {
+                if (it.value == null || it.key == null) {
+                    return@forEach
+                }
+                val po = ExcelDataPo()
+                po.sheet = sheetIndex
+                po.rowIndex = rowIndex
+                po.columnIndex = it.key.toString().toInt()
+                po.data = it.value.toString()
+                po.fileName = fileName
 
-
-            insertByType(po)
+                insertByType(po)
+            } catch (e: Exception) {
+                print(e)
+            }
         }
         rowIndex++;
     }

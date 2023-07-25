@@ -13,6 +13,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.awt.ComposeWindow
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -22,6 +23,9 @@ import androidx.compose.ui.unit.sp
 import dataSource.ExcelDataPo
 import dataSource.MemoryUtil
 import dataSource.SqliteUtil
+import excel.ExcelHandler
+import java.awt.FileDialog
+
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -33,7 +37,7 @@ fun searchBar(searchText: MutableState<String>, searchResult: SnapshotStateList<
     //输入框开关
     var inputEnable by remember { mutableStateOf(false) }
     //1 sql查询  2内存查询
-    var searchSourceType by remember { mutableStateOf(1) }
+    var searchSourceType by remember { mutableStateOf(2) }
     //搜索框颜色
     var searchButtonColor by remember { mutableStateOf(Color.Gray) }
 
@@ -74,7 +78,7 @@ fun searchBar(searchText: MutableState<String>, searchResult: SnapshotStateList<
                             verticalArrangement = Arrangement.Center
                         ) {
                             Text(
-                                text = "请点击右侧上传文件", textAlign = TextAlign.Center,
+                                text = "请点击右侧选择文件", textAlign = TextAlign.Center,
                                 modifier = Modifier.fillMaxWidth()
                             )
                         }
@@ -198,6 +202,44 @@ fun searchBar(searchText: MutableState<String>, searchResult: SnapshotStateList<
                     .background(Color(176, 196, 222))
                     .border(border = BorderStroke(1.dp, Color(0x7F000000)), shape = RoundedCornerShape(4.dp))
                     .clickable {
+                        val fileDialog = FileDialog(ComposeWindow())
+                        fileDialog.setMultipleMode(true)
+                        fileDialog.setVisible(true)
+                        var files = fileDialog.getFiles()
+
+                        files = files.filter {
+                            it.path.endsWith(".xlsx") || it.path.endsWith(".xls")
+                        }.toTypedArray()
+                        if (files.isEmpty()) {
+                            return@clickable
+                        }
+                        when (searchSourceType) {
+                            1 -> {
+                                searchResult.clear()
+                                files.forEach {
+                                    ExcelHandler().readExcel(it.path, 1)
+                                }
+
+                            }
+                            2 -> {
+                                MemoryUtil.allData.clear()
+                                searchResult.clear()
+                                files.forEach {
+                                    ExcelHandler().readExcel(it.path, 2)
+                                }
+                            }
+                            else -> {
+                                TODO()
+                            }
+                        }
+
+
+                        // JFileChooser().apply {
+                        //     fileSelectionMode = JFileChooser.FILES_AND_DIRECTORIES
+                        //     showOpenDialog(ComposeWindow())
+                        //     var path = selectedFile?.absolutePath ?: ""
+                        //     println(path)
+                        // }
 
                         inputEnable = true
                         searchButtonColor = Color.Magenta

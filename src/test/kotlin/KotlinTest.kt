@@ -17,13 +17,15 @@ class ByTestImpl : ByTestI {
 }
 
 class ByTestImplAndBy(imp: ByTestImpl) : ByTestI by imp {
-    fun aa(){
+    fun aa() {
         print("aa")
     }
 }
 
 fun main() {
-    var byt = ByTestImplAndBy(ByTestImpl());
-    byt.show()
-    byt.aa()
+    // var byt = ByTestImplAndBy(ByTestImpl());
+    // byt.show()
+    // byt.aa()
+
+    val map = HashMap<Any,Any?>()
 }

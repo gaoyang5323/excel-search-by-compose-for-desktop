@@ -51,9 +51,18 @@ fun searchResult(searchResult: SnapshotStateList<ExcelDataPo>, searchText: Mutab
 fun showResult(result: ExcelDataPo) {
     //进行了点击查询
     Row {
+        result.fileName?.let { it ->
+            Text(
+                text = "文件来源: " + it,
+                Modifier.padding(start = 5.dp, top = 5.dp).width(80.dp)
+                    .border(BorderStroke(1.dp, Color.Black)),
+                maxLines = 1,
+                textAlign = TextAlign.Center
+            )
+        }
         result.rowIndex?.let { it ->
             Text(
-                text = "所在行" + it.toString(),
+                text = "行: " + it.toString(),
                 Modifier.padding(start = 5.dp, top = 5.dp).width(80.dp)
                     .border(BorderStroke(1.dp, Color.Black)),
                 maxLines = 1,
@@ -62,7 +71,7 @@ fun showResult(result: ExcelDataPo) {
         }
         result.columnIndex?.let { it ->
             Text(
-                text = "所在列" + it.toString(),
+                text = "列: " + it.toString(),
                 Modifier.padding(start = 5.dp, top = 5.dp).width(80.dp)
                     .border(BorderStroke(1.dp, Color.Black)),
                 maxLines = 1,
