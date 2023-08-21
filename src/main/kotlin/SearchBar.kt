@@ -30,7 +30,10 @@ import java.awt.FileDialog
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 @Preview
-fun searchBar(searchText: MutableState<String>, searchResult: SnapshotStateList<ExcelDataPo>) {
+fun searchBar(
+    searchText: MutableState<String>,
+    searchResult: SnapshotStateList<ExcelDataPo>,
+) {
     var text by remember { searchText }
     var showPlaceHolder by remember { mutableStateOf(true) }
     var showAlert by remember { mutableStateOf(false) }
@@ -68,20 +71,19 @@ fun searchBar(searchText: MutableState<String>, searchResult: SnapshotStateList<
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-
                         //文件名筛选
-                        Column(
-                            Modifier
-                                .fillMaxHeight()
-                                .width(150.dp)
-                                .border(1.dp, Color(0x7F000000), shape = RoundedCornerShape(4.dp)),
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            Text(
-                                text = "请点击右侧选择文件", textAlign = TextAlign.Center,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                        }
+                        /*  Column(
+                              Modifier
+                                  .fillMaxHeight()
+                                  .width(150.dp)
+                                  .border(1.dp, Color(0x7F000000), shape = RoundedCornerShape(4.dp)),
+                              verticalArrangement = Arrangement.Center
+                          ) {
+                              Text(
+                                  text = "请点击右侧选择文件", textAlign = TextAlign.Center,
+                                  modifier = Modifier.fillMaxWidth()
+                              )
+                          }*/
                         Icon(
                             imageVector = Icons.Filled.Search,
                             contentDescription = "搜索图标",
@@ -97,7 +99,7 @@ fun searchBar(searchText: MutableState<String>, searchResult: SnapshotStateList<
                         ) {
                             if (showPlaceHolder) {
                                 Text(
-                                    text = "请输入搜索内容~",
+                                    text = if (inputEnable) "请输入搜索内容~" else "请点击右侧选择文件夹=>",
                                     color = Color(0x7F000000),
                                     modifier = Modifier.clickable {
                                         //showPlaceHolder = false

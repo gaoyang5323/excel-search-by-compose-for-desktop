@@ -40,8 +40,8 @@ fun App() {
 fun main() = application {
     Window(
         onCloseRequest = ::exitApplication,
-        title = "测试",
-        icon = painterResource("logo.png")
+        title = "Excel内容搜索",
+        icon = painterResource("logo2.png")
     ) {
         App()
     }
