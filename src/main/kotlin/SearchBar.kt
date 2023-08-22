@@ -37,6 +37,7 @@ fun searchBar(
     var text by remember { searchText }
     var showPlaceHolder by remember { mutableStateOf(true) }
     var showAlert by remember { mutableStateOf(false) }
+    var showAlertReward by remember { mutableStateOf(false) }
     //输入框开关
     var inputEnable by remember { mutableStateOf(false) }
     //1 sql查询  2内存查询
@@ -99,7 +100,7 @@ fun searchBar(
                         ) {
                             if (showPlaceHolder) {
                                 Text(
-                                    text = if (inputEnable) "请输入搜索内容~" else "请点击右侧选择文件夹=>",
+                                    text = if (inputEnable) "请输入搜索内容~" else "搜索前请点击右侧上传图标,选择需要搜索的文件所在目录=>",
                                     color = Color(0x7F000000),
                                     modifier = Modifier.clickable {
                                         //showPlaceHolder = false
@@ -145,9 +146,8 @@ fun searchBar(
             Box(
                 modifier = Modifier
                     .weight(2f)
-                    .padding(end = 3.dp)
                     .fillMaxHeight()
-                    .padding(start = 10.dp)
+                    .padding(start = 5.dp)
                     .wrapContentWidth(Alignment.End)
                     .border(
                         border = BorderStroke(1.dp, Color(0x7F000000)),
@@ -183,8 +183,15 @@ fun searchBar(
                                 TODO()
                             }
                         }
+
                         //锁定搜索框
                         //inputEnable = false
+
+                        //判断是否弹出奖励
+                        if (ExcelDataPo.searchCount.toLong() % 20 == 0L) {
+                            showAlertReward = true
+                        }
+                        ExcelDataPo.searchCount.add(1);
                     },
                 contentAlignment = Center
             ) {
@@ -201,6 +208,7 @@ fun searchBar(
                 contentDescription = "My Image",
                 modifier = Modifier.fillMaxHeight()
                     .width(30.dp)
+                    .padding(start = 5.dp)
                     .background(Color(176, 196, 222))
                     .border(border = BorderStroke(1.dp, Color(0x7F000000)), shape = RoundedCornerShape(4.dp))
                     .clickable {
@@ -250,6 +258,68 @@ fun searchBar(
         }
     }
 
+    //喝茶弹窗
+    if (showAlertReward) {
+        AlertDialog(
+            onDismissRequest = {
+            },
+            title = {
+                Column(
+                    Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(text = "请喝个饮料呗~", fontSize = 15.sp, color = Color.Gray)
+                }
+            },
+            text = {
+                Column {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Image(
+                            painter = painterResource("wxpay.png"),
+                            contentDescription = "My Image",
+                            Modifier.width(200.dp).height(200.dp).weight(1f)
+                        )
+
+                        Image(
+                            painter = painterResource("alipay.png"),
+                            contentDescription = "My Image",
+                            Modifier.width(200.dp).height(200.dp).weight(1f)
+                        )
+                    }
+
+
+                }
+            },
+            buttons = {
+                Column {
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Text(text = "不会影响你使用的,每搜索20次弹出来一次~", fontSize = 13.sp, color = Color.Magenta)
+                    }
+
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Button(onClick = {
+                            showAlertReward = false;
+                        }, content = {
+                            Text(text = "取消", fontSize = 15.sp)
+                        }, modifier = Modifier.width(80.dp))
+                    }
+                }
+
+            },
+            modifier = Modifier.width(500.dp).height(400.dp)
+                .border(border = BorderStroke(0.dp, Color.White), shape = RoundedCornerShape(4.dp))
+        )
+    }
+
+    //查询提示
     if (showAlert) {
         AlertDialog(onDismissRequest = {
             showAlert = false;

@@ -1,6 +1,7 @@
 package dataSource
 
 import java.io.File
+import java.util.concurrent.atomic.LongAdder
 
 class ExcelDataPo {
     var data: String? = null
@@ -11,6 +12,8 @@ class ExcelDataPo {
     var id: Int? = null
 
     companion object instance {
+
+        var searchCount: LongAdder = LongAdder()
 
         fun sheetConvert(index: Int?): String {
             if (index == null) {
