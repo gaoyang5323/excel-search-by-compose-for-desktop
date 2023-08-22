@@ -29,4 +29,4 @@ target/*
 src/main/resources/rebel.xml
 *.run.xml
 src/test/com/wfcm/test/main
-./build/*
+build/
