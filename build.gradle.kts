@@ -33,6 +33,19 @@ compose.desktop {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "Excel-Search"
             packageVersion = "1.0.0"
+
+            macOS{
+                dockName = "Excel搜索助手"
+                iconFile.set(project.file("icons/logo.icns"))
+            }
+            linux{
+                iconFile.set(project.file("icons/logo.png"))
+            }
+            windows {
+                shortcut = true
+                dirChooser = true
+                iconFile.set(project.file("icons/logo.ico"))
+            }
         }
     }
 }
