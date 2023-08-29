@@ -9,7 +9,7 @@ class ExcelDataPo {
     var columnIndex: Int? = null
     var rowIndex: Int? = null
     var sheet: Int? = null
-    var id: Int? = null
+    var id: String? = null
 
     companion object instance {
 

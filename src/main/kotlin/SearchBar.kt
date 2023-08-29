@@ -24,7 +24,7 @@ import dataSource.ExcelDataPo
 import dataSource.MemoryUtil
 import dataSource.SqliteUtil
 import excel.ExcelHandler
-import java.awt.FileDialog
+import javax.swing.JFileChooser
 
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -37,6 +37,9 @@ fun searchBar(
     var text by remember { searchText }
     var showPlaceHolder by remember { mutableStateOf(true) }
     var showAlert by remember { mutableStateOf(false) }
+    var showImportFileAlert by remember { mutableStateOf(false) }
+    var showImportFileErrorFileName = remember { mutableStateOf("") }
+    var showImportFileErrorAlert = remember { mutableStateOf(false) }
     var showAlertReward by remember { mutableStateOf(false) }
     //输入框开关
     var inputEnable by remember { mutableStateOf(false) }
@@ -212,44 +215,71 @@ fun searchBar(
                     .background(Color(176, 196, 222))
                     .border(border = BorderStroke(1.dp, Color(0x7F000000)), shape = RoundedCornerShape(4.dp))
                     .clickable {
-                        val fileDialog = FileDialog(ComposeWindow())
-                        fileDialog.setMultipleMode(true)
-                        fileDialog.setVisible(true)
-                        var files = fileDialog.getFiles()
+                        //选择多文件
+                        //val fileDialog = FileDialog(ComposeWindow())
+                        //fileDialog.setMultipleMode(true)
+                        //fileDialog.setVisible(true)
+                        //fileDialog.directory
+                        //var files = fileDialog.getFiles()
+                        //files = files.filter {
+                        //    it.path.endsWith(".xlsx") || it.path.endsWith(".xls")
+                        //}.toTypedArray()
+                        //if (files.isEmpty()) {
+                        //    return@clickable
+                        //}
 
-                        files = files.filter {
-                            it.path.endsWith(".xlsx") || it.path.endsWith(".xls")
-                        }.toTypedArray()
+                        //选择文件夹
+                        var path: String
+                        JFileChooser().apply {
+                            fileSelectionMode = JFileChooser.DIRECTORIES_ONLY
+                            showOpenDialog(ComposeWindow())
+                            path = selectedFile?.absolutePath ?: ""
+                        }
+                        val files = ExcelHandler.readFilesByDir(path)
                         if (files.isEmpty()) {
+                            inputEnable = false
+                            searchButtonColor = Color.Gray
+                            showImportFileAlert = true
                             return@clickable
                         }
                         when (searchSourceType) {
                             1 -> {
                                 searchResult.clear()
-                                files.forEach {
-                                    ExcelHandler().readExcel(it.path, 1)
+                                try {
+                                    files.forEach {
+                                        ExcelHandler().readExcel(
+                                            it,
+                                            1,
+                                            showImportFileErrorAlert,
+                                            showImportFileErrorFileName
+                                        )
+                                    }
+                                } catch (e: Exception) {
+                                    return@clickable
                                 }
-
                             }
                             2 -> {
                                 MemoryUtil.allData.clear()
                                 searchResult.clear()
-                                files.forEach {
-                                    ExcelHandler().readExcel(it.path, 2)
+
+                                try {
+                                    files.forEach {
+                                        ExcelHandler().readExcel(
+                                            it,
+                                            2,
+                                            showImportFileErrorAlert,
+                                            showImportFileErrorFileName
+                                        )
+                                    }
+                                } catch (e: Exception) {
+                                    return@clickable
                                 }
+
                             }
                             else -> {
                                 TODO()
                             }
                         }
-
-
-                        // JFileChooser().apply {
-                        //     fileSelectionMode = JFileChooser.FILES_AND_DIRECTORIES
-                        //     showOpenDialog(ComposeWindow())
-                        //     var path = selectedFile?.absolutePath ?: ""
-                        //     println(path)
-                        // }
 
                         inputEnable = true
                         searchButtonColor = Color.Magenta
@@ -350,5 +380,68 @@ fun searchBar(
             }
         }, modifier = Modifier.width(250.dp))
     }
-}
 
+    //导入文件提示
+    if (showImportFileAlert) {
+        AlertDialog(onDismissRequest = {
+            showImportFileAlert = false;
+        }, title = {
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Text("导入文件")
+            }
+        }, text = {
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Text("该文件夹下不存在Excel文件")
+            }
+        }, buttons = {
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Button(onClick = {
+                    showImportFileAlert = false;
+                }, content = {
+                    Text(text = "取消", fontSize = 10.sp)
+                }, modifier = Modifier.width(60.dp))
+            }
+        }, modifier = Modifier.width(250.dp))
+    }
+
+    //导入文件错误提示
+    if (showImportFileErrorAlert.value) {
+        AlertDialog(onDismissRequest = {
+            showImportFileErrorAlert.value = false;
+        }, title = {
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Text("导入文件错误")
+            }
+        }, text = {
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Text(showImportFileErrorFileName.value)
+            }
+        }, buttons = {
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Button(onClick = {
+                    showImportFileErrorAlert.value = false;
+                }, content = {
+                    Text(text = "取消", fontSize = 10.sp)
+                }, modifier = Modifier.width(60.dp))
+            }
+        }, modifier = Modifier.width(250.dp))
+    }
+}

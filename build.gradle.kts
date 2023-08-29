@@ -20,6 +20,7 @@ dependencies {
     implementation(compose.desktop.currentOs)
     implementation("com.alibaba:easyexcel:3.3.2")
     implementation("org.xerial:sqlite-jdbc:3.42.0.0")
+    implementation("org.openjfx:javafx-swing:16")
 }
 
 tasks.withType<KotlinCompile> {
@@ -34,11 +35,11 @@ compose.desktop {
             packageName = "Excel-Search"
             packageVersion = "1.0.0"
 
-            macOS{
+            macOS {
                 dockName = "Excel搜索助手"
                 iconFile.set(project.file("icons/logo.icns"))
             }
-            linux{
+            linux {
                 iconFile.set(project.file("icons/logo.png"))
             }
             windows {

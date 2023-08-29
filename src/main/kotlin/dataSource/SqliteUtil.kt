@@ -46,7 +46,7 @@ class SqliteUtil {
             val executeQuery = prepareStatement.executeQuery()
             while (executeQuery.next()) {
                 val po = ExcelDataPo()
-                po.id = executeQuery.getInt(1)
+                po.id = executeQuery.getString(1)
                 po.data = executeQuery.getString(2)
                 po.fileName = executeQuery.getString(3)
                 po.columnIndex = executeQuery.getInt(4)
