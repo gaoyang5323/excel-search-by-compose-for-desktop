@@ -18,9 +18,11 @@ repositories {
 
 dependencies {
     implementation(compose.desktop.currentOs)
-    implementation("com.alibaba:easyexcel:3.3.2")
+    implementation("org.apache.poi:poi:5.2.3")
+    implementation("com.alibaba:easyexcel:3.3.2"){
+        exclude("org.apache.poi:poi-ooxml-schemas")
+    }
     implementation("org.xerial:sqlite-jdbc:3.42.0.0")
-    implementation("org.openjfx:javafx-swing:16")
 }
 
 tasks.withType<KotlinCompile> {
@@ -33,7 +35,7 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "Excel-Search"
-            packageVersion = "1.0.0"
+            packageVersion = "2.0.1"
 
             macOS {
                 dockName = "Excel搜索助手"

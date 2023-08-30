@@ -188,6 +188,7 @@ fun showResult(result: ExcelDataPo, showAlert: MutableState<Boolean>, showAlertP
     val clipboardManager: ClipboardManager = LocalClipboardManager.current
 
     //进行了点击查询
+    var resultRowSre by remember { mutableStateOf(ExcelDataPo.sheetConvert(result.columnIndex) + result.rowIndex.toString() + "-sheet" + result.sheet) }
     Row {
         Box(
             modifier = Modifier.fillMaxWidth().height(30.dp).padding(start = 5.dp, top = 5.dp)
@@ -198,9 +199,19 @@ fun showResult(result: ExcelDataPo, showAlert: MutableState<Boolean>, showAlertP
                     // clipboardManager.setText(AnnotatedString((result.fileName.toString())))
                     // showAlertPath.value = true
 
-                    //打开文件
+                    //打开文件,并复制位置
                     val excelFile = File(result.fileName!!)
                     if (Desktop.isDesktopSupported() && excelFile.exists()) {
+                        //点击复制内容
+                        clipboardManager.setText(AnnotatedString((ExcelDataPo.sheetConvert(result.columnIndex) + result.rowIndex.toString())))
+                        // showAlert.value = true
+                        resultRowSre = "已复制"
+                        GlobalScope.launch {
+                            delay(3000)
+                            resultRowSre =
+                                ExcelDataPo.sheetConvert(result.columnIndex) + result.rowIndex.toString() + "-sheet" + result.sheet
+                        }
+
                         val desktop = Desktop.getDesktop()
                         try {
                             desktop.open(excelFile) // 使用默认程序打开文件
@@ -228,7 +239,6 @@ fun showResult(result: ExcelDataPo, showAlert: MutableState<Boolean>, showAlertP
             }
         }
 
-        var resultRowSre by remember { mutableStateOf(ExcelDataPo.sheetConvert(result.columnIndex) + result.rowIndex.toString() + "-sheet" + result.sheet) }
         Box(
             modifier = Modifier.fillMaxWidth().height(30.dp).padding(start = 2.dp, top = 5.dp)
                 .border(BorderStroke(1.dp, Color(0x7F000000))).weight(0.8f)
